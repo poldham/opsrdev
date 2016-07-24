@@ -2,3 +2,4 @@
 ^\.Rproj\.user$
 ignore
 tests/tests.R
+^\.travis\.yml$
