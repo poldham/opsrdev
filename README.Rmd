@@ -286,4 +286,4 @@ complete <- unite(complete, publication_number_full, c(publication_country, publ
 
 ##Round Up
 
-`opsr` is presently at an early stage of development but progress is being made. The OPS service is not intended for large scale bulk downloads and it is quite easy to bump up against the service restrictions and receive as 403 message. But, OPS is a valuable source of free patent data and offers a range of other services (e.g. family and legal status) along with the ability to retrieve description and claims for some jurisdictions that are not available for free anywhere else. 
+`opsr` is presently at an early stage of development but progress is being made. The OPS service is not intended for large scale bulk downloads and it is quite easy to bump up against the service restrictions and receive a 403 message. But, OPS is a valuable source of free patent data and offers a range of other services (e.g. family and legal status) along with the ability to retrieve description and claims for some jurisdictions that are not available for free anywhere else. 
