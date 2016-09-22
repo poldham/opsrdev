@@ -227,7 +227,7 @@ for(i in 1:length(ops_results)) {
   raw_results <- httr::GET(url = my_urls, httr::content_type("plain/text"), httr::accept("application/json"))
   content <- httr::content(raw_results)
   ops_results[[i]] <- content
-  message("getting_data") # status message goes here?
+  message("getting_data")
   Sys.sleep(time = timer)
 }
 return(ops_results)
@@ -266,7 +266,7 @@ pizza2 <- ops_loop(urls_2001_2010, timer = 20)
 pizza3 <- ops_loop(urls_2011_2015, timer = 20)
 ```
 
-Once we have the data we can use `combine()` from dplyr to create one list of data for a call to process in ops_biblio() to produce our complete data frame 
+Once we have the data we can use `combine()` from dplyr to create one list of data for a call to process in `ops_biblio()` to produce our complete data frame 
 
 ```{r complete, eval=FALSE, warning=FALSE}
 library(dplyr)
@@ -284,3 +284,6 @@ library(dplyr)
 complete <- unite(complete, publication_number_full, c(publication_country, publication_number, publication_kind), sep = "", remove = FALSE)
 ```
 
+##Round Up
+
+`opsr` is presently at an early stage of development but progress is being made. The OPS service is not intended for large scale bulk downloads and it is quite easy to bump up against the service restrictions and receive as 403 message. But, OPS is a valuable source of free patent data and offers a range of other services (e.g. family and legal status) along with the ability to retrieve description and claims for some jurisdictions that are not available for free anywhere else. 

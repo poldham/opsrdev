@@ -107,14 +107,14 @@ ops_count("dna", "ta", start = 1990, end = 2015)
 
     ## [1] 10000
 
-So, bear in mind that it is important to think about your search strategy. Will address how to deal with more than 2000 results at a time below.
+So, bear in mind that it is important to think about your search strategy. We will address how to deal with more than 2000 results at a time below.
 
 Retrieve the data from OPS
 --------------------------
 
 In practice retrieving data from OPS is a multi-step process.
 
-Step 1. Define how many results a query will return. Step 2. Generate URLs to retrieve the results (100 per url) Step 3. Fetch the results Step 4. Transform into a data.frame (in future a tibble)
+Step 1: Define how many results a query will return. Step 2: Generate URLs to retrieve the results (100 per url). Step 3: Fetch the results. Step 4: Transform into a data.frame (in future a tibble).
 
 We will illustrate these steps and then show how they are combined.
 
@@ -145,11 +145,11 @@ tmp1 <- ops_iterate(tmp, service = "biblio", timer = 10)
 tmp1
 ```
 
-ops\_iterate uses lapply and a timer to fetch the data for each URL using GET (see ops\_get). ops\_iterate is a generic function that will work with a range of services (such as retrieving claims or descriptions based on patent numbers)
+ops\_iterate uses lapply and a timer to fetch the data for each URL using GET (see ops\_get). ops\_iterate is a generic function that will work with a range of services (such as retrieving claims or descriptions based on patent numbers).
 
 ### Step 4 Transform into a data.frame
 
-We normally want to view patent bibliographic information in a data frame (or in future the simplified tibble). Parsing the JSON data is the job of ops\_biblio()
+We normally want to view patent bibliographic information in a data frame (or in future the simplified tibble). Parsing the JSON data is the job of ops\_biblio().
 
 ``` r
 library(opsrdev)
@@ -159,7 +159,7 @@ head(tmp2)
 
 ops\_biblio uses the aggregate() function in its final step and this generates a warning.
 
-Note that some issues require clarification in future work (notably the number of applicants/inventors per record). At present ops\_biblio appears to parse only one of the inventor or applicant names from a sequence. This therefore requires more work to capture and concatenate the names in a record. The same is true in the case of IPC/CPC codes where the sequence data requires preprocessing and concatenating to provide one field
+Note that some issues require clarification in future work (notably the number of applicants/inventors per record). At present ops\_biblio appears to parse only one of the inventor or applicant names from a sequence. This therefore requires more work to capture and concatenate the names in a record. The same is true in the case of IPC/CPC codes where the sequence data requires preprocessing and concatenating to provide one field.
 
 Pulling it together with ops\_fetch\_biblio
 ===========================================
@@ -196,7 +196,7 @@ write_csv(drones, "drones.csv")
 Retrieving more than 2000 results
 ---------------------------------
 
-Bearing in mind that patent databases like the Lens and Patentscope allow you to download a data table with up to 10,000 results at a time, the OPS maximum of 2000 is rather frustrating. This will maybe change now that the USPTO is taking a lead with [open data services](http://www.uspto.gov/learning-and-resources/open-data-and-mobility). The 2,000 limit per query does however focus our attention on the important question of why we are seeking more than
+Bearing in mind that patent databases like the Lens and Patentscope allow you to download a data table with up to 10,000 results at a time, the OPS maximum of 2000 is rather frustrating. This will maybe change now that the USPTO is taking a lead with [open data services](http://www.uspto.gov/learning-and-resources/open-data-and-mobility). The 2,000 limit per query does however focus our attention on the important question of why we are seeking more than 2,000 records and whether we should refine the query.
 
 Let's imagine that we are interested in the results of searches of patent titles and abstracts that contain the words pizza between 1990 and 2015. We can do this by specifying the start and end years. We could also specify this as start = 19900101 end = 20151231 for finer control. Note that the format is YYYYMMDD.
 
@@ -226,9 +226,9 @@ qtotal_2011_2015 <- ops_count("pizza", "ta", start = 2011, end = 2015) # 690
 
 We can see that it will take us three queries to arrive at the total number of results across the period (2000 to 2015 returned 2093 results which is too high).
 
-We now have three sets of queries that will be needed to arrive to the 2981 results between 1990 and 2015. Each of these sets will need to be retrieved in smaller sets of 100 records at a time (the most that can be called at one time).
+We now have three sets of queries that will be needed to arrive to the 2986 results between 1990 and 2015. Each of these sets will need to be retrieved in smaller sets of 100 records at a time (the most that can be called at one time).
 
-In practice this means that we will have to generate a set of URLs containing 100 items at a time. For example, to retrieve the 888 results between 1990 and 2000 we will need to use 9 URLs (888/100 = 8.88) and for 2001 to 2010 we will need 15 (14.12).
+In practice this means that we will have to generate a set of URLs containing 100 items at a time. For example, to retrieve the 884 results between 1990 and 2000 we will need to use 9 URLs (884/100 = 8.84) and for 2001 to 2010 we will need 15 (14.12).
 
 We can use ops\_urls to generate the necessary urls for us.
 
@@ -299,7 +299,7 @@ urls_2011_2015 <- ops_urls("pizza", "ta", start = 2011, end = 2015) %>% print()
 
 We now have three sets of URLs, each specifying a range of 100 results upto the rounded maximum for the date range.
 
-The final element is to create a `for loop` that will loop over each of our URLs and place them into an object where we can store the results and parse them. Thanks to this very useful [R-bloggers article on Accessing APIs from R by Christoph Waldhauser](http://www.r-bloggers.com/accessing-apis-from-r-and-a-little-r-programming/) we can actually do this quite easily. The key to this is:
+The final element is to create a `for loop` that will loop over each of our URLs and place them into an object where we can store the results and parse them. Thanks to this very useful [R-bloggers article on Accessing APIs from R by Christoph Waldhauser](http://www.r-bloggers.com/accessing-apis-from-r-and-a-little-r-programming/) we can do this quite easily. The key to this is:
 
 1.  To create an empty holder to store the data we receive back from OPS that is the same length as our list of URLs. We will call that `ops_results`.
 2.  Setting a sensible sleep time before each GET request is sent to OPS. To avoid violating the fair use charter and receiving a 403 (blocking message), the minimum value must be 6 seconds (to match the 10 calls per minute limit). But it may make sense to make this quite a lot longer and go and make a cup of tea while it runs.
@@ -312,7 +312,7 @@ for(i in 1:length(ops_results)) {
   raw_results <- httr::GET(url = my_urls, httr::content_type("plain/text"), httr::accept("application/json"))
   content <- httr::content(raw_results)
   ops_results[[i]] <- content
-  message("getting_data") # status message goes here?
+  message("getting_data")
   Sys.sleep(time = timer)
 }
 return(ops_results)
@@ -354,7 +354,7 @@ pizza2 <- ops_loop(urls_2001_2010, timer = 20)
 pizza3 <- ops_loop(urls_2011_2015, timer = 20)
 ```
 
-Once we have the data we can use `combine()` from dplyr to create one list of data for a call to process in ops\_biblio() to produce our complete data frame
+Once we have the data we can use `combine()` from dplyr to create one list of data for a call to process in `ops\_biblio()` to produce our complete data frame
 
 ``` r
 library(dplyr)
@@ -372,3 +372,7 @@ At present the publication\_country, the publication\_number and publication\_ki
 library(dplyr)
 complete <- unite(complete, publication_number_full, c(publication_country, publication_number, publication_kind), sep = "", remove = FALSE)
 ```
+Round Up
+===================================
+
+`opsr` is presently at an early stage of development but progress is being made. The OPS service is not intended for large scale bulk downloads and it is quite easy to bump up against the service restrictions and receive as 403 message. But, OPS is a valuable source of free patent data and offers a range of other services (e.g. family and legal status) along with the ability to retrieve description and claims for some jurisdictions that are not available for free anywhere else. 
