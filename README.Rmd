@@ -278,35 +278,3 @@ library(dplyr)
 complete <- unite(complete, publication_number_full, c(publication_country, publication_number, publication_kind), sep = "", remove = FALSE)
 ```
 
-
-
-
-
-#Mine into the titles
-
-We can mine into the titles by first selecting the fields we need. 
-
-```{r eval=FALSE}
-library(dplyr)
-tab <- select(drones, publication_number, title, abstract)
-```
-
-We want to join the title and the abstracts together and then break them up into phrases. We can use the new tokenizers package to do this quite easily.
-
-```{r eval=FALSE}
-install.packages("tokenizers")
-library(tokenizers)
-```
-
-```{r eval=FALSE}
-tab <- tidyr::unite(tab, "title_and_abstract", c(title, abstract), sep = " ")
-```
-
-Next we need to break up the title field into chunks
-
-```{r eval=FALSE}
-test <- tokenize_ngrams(tab$title_and_abstract, lowercase = TRUE, n = 2L, stopwords())
-names(tab) <- tab$publication_number
-tab
-```
-
