@@ -2,7 +2,9 @@
 title: "README"
 author: "Paul Oldham"
 date: "29 July 2016"
-output: html_document
+output:
+  github_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -12,13 +14,13 @@ knitr::opts_chunk$set(echo = TRUE)
 # opsrdev
 [![Travis-CI Build Status](https://travis-ci.org/poldham/opsrdev.svg?branch=master)](https://travis-ci.org/poldham/opsrdev)
 
-This is the early development version of the opsr R package to access the [EPO Open Patent Services API](http://www.epo.org/searching-for-patents/technical/espacenet/ops.html#tab1)
+This is the early development version of the opsr R package to access the [European Patent Office Open Patent Services API](http://www.epo.org/searching-for-patents/technical/espacenet/ops.html#tab1)
 
 The main aim of the package is to provide access to the OPS service and, more importantly, to transform the data into data frames or the new tibbles (simpler data frames) that we can perform useful patent analysis with. There is still quite a way to go and if you would like to contribute feel welcome. 
 
 opsrdev is not on CRAN. To install it use: 
 
-```{r}
+```{r eval=FALSE}
 devtools::install_github("poldham/opsrdev")
 ```
 
@@ -33,7 +35,7 @@ install.packages("dplyr") #for chaining using %>%
 install.packages("readr") #to write the files
 ```
 
-Load dplyr to use %>% in interactive mode and opsrdev. Use the small green arrow to the right to run the code. 
+Load dplyr to use %>% in interactive mode and opsrdev.
 
 ```{r library, eval=FALSE}
 library(opsrdev) # the opsr package
@@ -188,7 +190,7 @@ qtotal <- ops_count("pizza", "ta", start = 1990, end = 2015) # 2986
 
 This generates 2,986 results between the specified period. We now need to break these into smaller chunks.
 
-```{r}
+```{r qtotal}
 qtotal_1990_2000 <- ops_count("pizza", "ta", start = 1990, end = 2000) # 884
 qtotal_2001_2010 <- ops_count("pizza", "ta", start = 2001, end = 2010) # 1412
 qtotal_2011_2015 <- ops_count("pizza", "ta", start = 2011, end = 2015) # 690
@@ -202,10 +204,12 @@ In practice this means that we will have to generate a set of URLs containing 10
 
 We can use ops_urls to generate the necessary urls for us.
 
-```{r}
+```{r url_set}
+library(opsrdev)
+library(dplyr)
 urls_1990_2000 <- ops_urls("pizza", type = "ta", start = 1990, end = 2000) %>% print()
-urls_2001_2010 <- ops_urls("pizza", "ta", start = 2001, end = 2010)  %>% print()
-urls_2011_2015 <- ops_urls("pizza", "ta", start = 2011, end = 2015) %>% print()
+urls_2001_2010 <- ops_urls("pizza", "ta", start = 2001, end = 2010) %>% print()
+urls_2011_2015 <- ops_urls("pizza", "ta", start = 2011, end = 2015) 4%>% print()
 ```
 
 We now have three sets of URLs, each specifying a range of 100 results upto the rounded maximum for the date range. 
@@ -215,7 +219,7 @@ The final element is to create a `for loop` that will loop over each of our URLs
 1. To create an empty holder to store the data we receive back from OPS that is the same length as our list of URLs. We will call that `ops_results`.
 2. Setting a sensible sleep time before each GET request is sent to OPS. To avoid violating the fair use charter and receiving a 403 (blocking message), the minimum value must be 6 seconds (to match the 10 calls per minute limit). But it may make sense to make this quite a lot longer and go and make a cup of tea while it runs.
 
-```{r}
+```{r ops_loop, eval=FALSE}
 ops_loop <- function(x, timer = 10) {
 ops_results <- vector(mode = "list", length = length(x))
 for(i in 1:length(ops_results)) {
@@ -232,13 +236,15 @@ return(ops_results)
 
 Before we run this we need to authenticate as we will be retrieving more than a trivial number of results.
 
-```{r auth1}
+```{r auth1, eval=FALSE}
+library(opsrdev)
 ops_auth(key, secret)
 ```
 
 Note that in addition to the restriction on the number of results per query, there is also a fair use restriction on the amount of data that is called (with a 2 gigabyte per week limit). Depending on the time of day there may be more pressure on the service than at others. You can check the status of the service before trying to retrieve multiple sets of data. 
 
 ```{r status}
+library(opsrdev)
 ops_status()
 ```
 
@@ -246,23 +252,23 @@ ops_status provides two pieces of information. In the first line is your authent
 
 Note that the amount of data that comes back (54 MB for the first query) is not trivial if you plan on using OPS a lot. 
 
-```{r get1}
-test <- ops_loop(urls_1990_2000, timer = 20)
+```{r get1, eval=FALSE}
+pizza1 <- ops_loop(urls_1990_2000, timer = 20)
 ```
 
 We can then run the second query
 
-```{r get2}
+```{r get2, eval=FALSE}
 pizza2 <- ops_loop(urls_2001_2010, timer = 20)
 ```
 
-```{r get3}
+```{r get3, eval=FALSE}
 pizza3 <- ops_loop(urls_2011_2015, timer = 20)
 ```
 
 Once we have the data we can use `combine()` from dplyr to create one list of data for a call to process in ops_biblio() to produce our complete data frame 
 
-```{r complete, warning=FALSE}
+```{r complete, eval=FALSE, warning=FALSE}
 library(dplyr)
 complete <- combine(test, pizza2, pizza3) %>% 
   ops_biblio()
@@ -273,7 +279,7 @@ complete
 
 At present the publication_country, the publication_number and publication_kind are separate fields. It makes sense to unite them so they can be use for lookups with other database services. 
 
-```{r publicationnumber}
+```{r publicationnumber, eval=FALSE}
 library(dplyr)
 complete <- unite(complete, publication_number_full, c(publication_country, publication_number, publication_kind), sep = "", remove = FALSE)
 ```
