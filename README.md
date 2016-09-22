@@ -30,7 +30,7 @@ install.packages("dplyr") #for chaining using %>%
 install.packages("readr") #to write the files
 ```
 
-Load dplyr to use %&gt;% in interactive mode and opsrdev. Use the small green arrow to the right to run the code.
+Load dplyr to use %&gt;% in interactive mode and opsrdev. 
 
 ``` r
 library(opsrdev) # the opsr package
