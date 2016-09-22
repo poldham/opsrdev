@@ -1,0 +1,55 @@
+---
+title: "lens_numbers_test"
+author: "Paul Oldham"
+date: "19 August 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+```{r cars}
+library(dplyr)
+algeria_nums <- dplyr::select(algeria_TAC_corrected_19082016, `Publication Number`) %>% 
+  lens_numbers("Publication Number")
+opsrdev::ops_auth(key, secret)
+
+test238 <- opsrdev::ops_post(algeria_nums$`Publication Number`) %>% httr::content() # no has to be less than 238 or 100?
+
+test200 <- algeria_nums[1:200, ]
+test100 <- algeria_nums[1:100, ]
+
+test200 <- opsrdev::ops_post(test200$`Publication Number`) %>% httr::content()
+
+test100 <- opsrdev::ops_post(test100$`Publication Number`) %>% httr::content() # works fine with 100. So the approach could be to download the numbers and then post in chunks of 100... but how is that faster in reality. Is it more controllable? 
+
+algeria_nums10 <- algeria_nums[1:10, ] # just ten
+test <- opsrdev::ops_post(algeria_nums10$`Publication Number`)
+test1 <- httr::content(test)
+bibstest <- opsrdev::ops_biblio(test1[3]) # throws an error, Error in `[.data.frame`(df, c("abstract", "abstract_language", "applicant",  : undefined columns selected
+
+# No inventor information coming back in test1
+# the issue seems to be "not found" which means those results need filtering out beforehand> may need to chop off the kind code. Also the loss of the inventor information - not clear why it is not there. Note that this is from a post request.
+
+at $`ops:world-patent-data`$`exchange-documents`$`exchange-document`[[6]]$`@status`
+[1] "not found"
+
+# Not clear that the inventors data is really showing up on th.s
+
+test11 <- rapply(test1, as.character, classes = "character", deflt = as.integer(NA, how = "unlist")) %>% 
+  plyr::ldply()
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

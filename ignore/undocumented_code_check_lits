@@ -1,0 +1,3 @@
+Undocumented code object pizza appears to be in ops_numbers or in that set for R CMD check.
+
+The problem is tracking it down.

@@ -2,6 +2,10 @@
 #' @description Used in conjunction with ops_iterate. Given a set of urls convert to a get request to retrieve the data from OPS. When the response is received extract the content to create a list.
 #' @param url . A single url or vector of urls
 #' @return A list.
+#' @importFrom httr GET
+#' @importFrom httr content_type
+#' @importFrom httr accept
+#' @importFrom httr content
 #' @export
 #' @examples \dontrun{lapply(three_urls, ops_get)}
 ops_get <- function(url){

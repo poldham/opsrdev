@@ -1,0 +1,37 @@
+Bugs to fix.
+
+2. iterate. The strange behaviour with the warning was because I was importing from opsr:: at line 27. That version had the warning in. Now I need to see if it works in opsrdev and then change it to the original if need be. So, need to be careful about importing from myself!!!.
+
+1. ops_numbers = adding extra columns with the addition of the logical on country. Annoying and the data is incorrect so not joining properly.
+2. timer is not working properly in iterate... as doesn't display well for numbers. For fulltext is showing 'working' suggesting is somehow using an old version not present in the code (but in old code).
+3. Some issues with documentation of examples that need fixing somehow.
+4. ops_biblio. Change rename to dictionary approach. Adapt for cases where input is a list and not a response. Check OPS versions for this. Or simply introduce controls into ops_multi_biblios() which I think is the way I have gone with this.
+5. ops_publications. This only generates the urls at the moment and needs tying in with ops_get
+6. parse_numbers_results_ . The example doesnt work because the results dataset does not exist in data. create a sample set and call it numbers to test.
+
+To Do:
+1. Add in CQL searches for more than one word and check in url construction
+2. Family search
+3. Citation search
+4. Dividing data into chunks under the 2000 limit in
+
+1. I did this in a for loop before somewhere. Where there are two thousand or more results there is a need to check that ops_pub will actually work - yes with new if statement. Next then is to actually divide up the total by year somehow to arrive at a set of
+
+if total is 4319 then we need some kind of dial up that will check if a year range is below 2000 and then generate a set on that. Then test another year range and create a set on that.
+
+qtotal()
+if qtotal > 2000
+1800_1990 <- query 1800 to 1990
+if 1800_1990 < 2000{
+out(ttotal)
+}
+
+I'm not sure that this will really work. Or will take some time to work out. I did work it out with a loop previously but now am a bit unclear how to proceed. Maybe put a warning in for now.
+we need to know what is
+
+1800 - 1990
+1990 - 1995
+1996 - 2000
+2001 - 2005
+2005 - 2010
+2011 - 2016

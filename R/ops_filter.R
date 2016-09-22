@@ -18,4 +18,4 @@ ops_filter <- function(data) {
     return(data)
   }
 }
-# the above works by testing the column names for country or publication_country, then using the presence of TRUE as a basis for filter. This could be better to account for different possibilities (it has to be a published document to be retrieved by fulltext). But, it should be extended to cases where publication numbers begin with one of the list (that would be the third test in the list. Also, is the use of filter rather than filter_ satisfactory in a function?
+# the above works by testing the column names for country or publication_country, then using the presence of TRUE as a basis for filter. This could be better to account for different possibilities (it has to be a published document to be retrieved by fulltext so no point in using the priority country or the application country as will generate a stop at OPS if not present). But, it should be extended to cases where publication numbers begin with one of country codes on the list for full text (that would be the third test in the list). Also, is the use of filter rather than filter_ satisfactory in a function?

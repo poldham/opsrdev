@@ -1,0 +1,110 @@
+---
+title: "OPS testing"
+author: "Paul Oldham"
+date: "21 July 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Using opsdev
+
+1. opsr
+2. search
+3. generate urls
+4. iterate (urls, ops_get)
+5. ops_numbers
+
+1. Sign up and authenticate
+2. URL demonstrations
+
+Example
+
+```{r}
+urls <- ops_urls(query = "pizza", type = "ti", start = 1990, end = 2000)
+test <- lapply(urls[[1]], ops_get) #note the subset
+df <- ops_numbers(test) # the add on part is not correct
+df <- ops_numbers_new(test) #not working - query based
+df <- ops_numbers_new(pizza)
+more_pizza <- ops_publications(query = "pizza", type = "ta", start = 1990, end = 2000) # outputs urls, so need to wrap in lapply ops_get then ops_numbers? 
+View(df)
+df <- ops_publications_test(pizza)
+
+#can't make any sense of what is going on with ops_publications_new and test at the moment
+```
+
+
+```{r}
+library(opsrdev)
+ops_auth(key, secret)
+urls <- ops_urls(query = "pizza", type = "ti", start = 1990, end = 1991) # 72 just processes the data anyway as a list.
+urls1 <- ops_urls(query = "pizza", type = "ti", start = 1990, end = 2000) # 581
+urls2 <- ops_urls(query = "pizza", type = "ti", start = 2000, end = 2015) #1494
+test <- lapply(urls[[1]], ops_get)
+urls1_test <- ops_numbers(urls1)
+
+#testing what happens with different controls on ops_publications
+more_pizza <- ops_publications(query = "pizza", type = "ti", start = 1990, end = 1991) # 72, returns a list that needs to be parsed to a table. Let's start with that first.
+more_pizza1 <- ops_publications(query = "pizza", type = "ti", start = 1990, end = 2000) #returns a set of 6 urls that needs to be sent to ops and then turned httr::content() and parsed.
+more_pizza2 <- ops_publications(query = "pizza", type = "ti", start = 2000, end = 2015) #returns a list of 15 urls that need to be sent. So to lapply and then 
+
+```
+tests of parsing to df with ops_numbers
+```{r}
+more_pizzat <- ops_publications(query = "pizza", type = "ti", start = 1990, end = 1991) # this now works in ops_publications in returning a table (note check the relevant service formats). Add convert country name. 
+more_pizza1t <- ops_publications(query = "pizza", type = "ti", start = 1990, end = 2000) #returns urls at the moment and so those need to be sent off and then parsed.
+```
+
+
+Using post
+
+```{r}
+more_pizza <- ops_publications(query = "pizza", type = "ta", start = 1990, end = 2000)
+```
+
+```{r}
+x <- more_pizza$epodoc
+z <- x[1:100]
+y <- x[871:881]
+w <- x[800:881]
+```
+
+```{r}
+post_biblios <- POST("http://ops.epo.org/3.1/rest-services/published-data/publication/epodoc/biblio", content_type("plain/text"), accept("application/json"), body = y)
+test <- content(post_biblios100)
+
+#some kind of issue with ops_post
+post_biblios <- ops_post(z)
+post_biblios1 <- content(post_biblios)
+test <- ops_multi_biblio(post_biblios1)
+ops_multi_biblio(post_bibliosy)
+
+ops_biblio(post_biblios)
+ops_biblio(post_bibliosy)
+```
+
+
+Alternative approach to work out why format is different
+```{r}
+library(dplyr)
+urls_1990_2000 <- ops_urls("pizza", type = "ta", start = 1990, end = 2000)  %>% print()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

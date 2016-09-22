@@ -24,7 +24,7 @@ The function uses rapply and later aggregate. Note that aggregate
   will generate a warning. The use of fill() from tidyr is a temporary
   measure and is a likely source of weakness in the code. Note that in order
   to produce data.frames with an equal number of columns across all years the
-  `ipc` column for the historic IPC7 classification is dropped where present.
+  `ipc` column for the historic IPC7 classification is presently dropped where present.
 }
 \examples{
 \dontrun{ops_biblio(ops_biblios)}

@@ -4,20 +4,20 @@
 #' @param service Character, select from "numbers"(to retrieve numbers from a text query) or "fulltext" to use a vector of numbers.
 #' @param type The type of search for "fulltext" only. either "fulltext", "description" or "claims".
 #' @param timer The delay before sending each request
-#' @return a JSON response object for use in other functions
+#' @return a JSON response object for use in other functions such as ops_numbers or ops_biblio.
 #' @export
 #' @importFrom pbapply pblapply
 #' @examples \dontrun{threepubs <- c("WO0000034", "WO0000035", "WO0005967")
-#' ft <- iterate(threepubs, service = "fulltext", type = "fulltext")
-#' ft <- iterate(threepubs, type = "claims")}
+#' ft <- ops_iterate(threepubs, service = "fulltext", type = "fulltext") # shows availability of texts
+#' ft <- ops_iterate(threepubs, service = "fulltext", type = "claims")}
 #' @examples \dontrun{pub_number <- c("WO0000034", "WO0000035", "WO0005967", "WO0007448", "EA001153", "WO0011959", "WO0035291", "WO0042857", "WO0046766", "WO0057710")
 #'ft <- iterate(pub_number, type = "claims")}
-#' @examples \dontrun{pizza_numbers <- iterate(pizza$[[[1]], service = "numbers")} # note that select first item in list
-#' @examples \dontrun {three <- iterate(three_urls, service = "numbers")}
+#' @examples \dontrun{pizza_numbers <- ops_iterate(pizza[[1]], service = "numbers")} # note that select first item in list
+#' @examples \dontrun {three <- ops_iterate(three_urls, service = "numbers")}
 ops_iterate <- function(data, service = "", type = NULL, timer = 20){
   if(service == "numbers"){
   out <- pbapply::pblapply(data, ops_get)
-  Sys.sleep(timer)
+  Sys.sleep(timer) #look at pboptions
   return(out)
   }
   if(service == "biblio"){
@@ -25,11 +25,18 @@ ops_iterate <- function(data, service = "", type = NULL, timer = 20){
   Sys.sleep(timer)
   return(out)
   }
-  #if(service == "claims"){}
-  #if(service == "description"){}
+  if(service == "claims"){
+  #revised version of ops_filter() based on country/instrument code
+  out <- pbapply::pblapply(data, ops_get)
+  Sys.sleep(timer)
+  }
+  #if(service == "description"){
+  #revised version of ops_filter() based on country/instrument code
+  # out <- pbapply::pblapply(data, ops_get)
+  # Sys.sleep(timer)
+  # }
   if(service == "fulltext"){
-    out <- pbapply::pblapply(data, ops_fulltext, type = type) #note was opsr:: before, and I have removed.,
-    #ops_status() #note is set to pizza at the moment. To try.
+    out <- pbapply::pblapply(data, ops_fulltext, type = type)
     Sys.sleep(timer)
     return(out)
     }

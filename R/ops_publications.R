@@ -26,18 +26,23 @@ ops_publications <- function(query="", type = "NULL", start = NULL, end = NULL) 
     within <- " and pd within " # note spaces
     dates <- paste0("%22", start, "%20", end, "%22")
     myquery <- httr::GET(paste0(published_url, query, RCurl::curlEscape(within), dates), httr::content_type("plain/text"), httr::accept("application/json"))
-    content <- httr::content(myquery) # these urls are not outputting below
+    content <- httr::content(myquery)
+    # produces a list to here so it is working
+    # insert ops_numbers_ here as internal function
   }
+# cases where no year range is specified.
   if(is.null(start) | is.null(end)){
     myquery <- httr::GET(paste0(published_url, query), httr::content_type("plain/text"), httr::accept("application/json"))
     content <- httr::content(myquery)
+    #default of 25 results as a list
+    # insert ops_numbers_ here as internal function
   }
   # this is the counter
   qtotal <- content$`ops:world-patent-data`$`ops:biblio-search`[[1]]
   qtotal <- as.numeric(qtotal)
   print(qtotal)
   if(qtotal <= 100){
-    content <- httr::content(myquery)
+    # content <- httr::content(myquery)
     results <- content$`ops:world-patent-data`$`ops:biblio-search`$`ops:search-result`$`ops:publication-reference`
     familyid <- lapply(results, "[", 2)
     document_id <- sapply(results, "[", 3)  #make nested lists below 3 accessible. replace sapply with vapply.
@@ -55,8 +60,8 @@ ops_publications <- function(query="", type = "NULL", start = NULL, end = NULL) 
     df <- tidyr::unite(df, epodoc_format, c(country, docnumber), sep = "", remove = FALSE) %>%
       tidyr::unite(docdb_format, c(country, docnumber, kind), sep = ".", remove = FALSE) %>%
       tidyr::unite(publication_number, c(country, docnumber, kind), sep = "", remove = FALSE)
-    #return(content)
-  } #works to here
+    return(df)
+  }
   if(qtotal <= 2000){ # removed >100 as that is not helpful
     # add in the url calculator and generator
     number <- ceiling(qtotal/100)
@@ -69,48 +74,51 @@ ops_publications <- function(query="", type = "NULL", start = NULL, end = NULL) 
     urls <- paste0(published_url, query, RCurl::curlEscape(within), dates, range) # added within and dates. Seems to work
     urls <- split(urls, ceiling(seq_along(urls)/20)) #from SO answer by Harlan
     #return(urls)
-     content <- lapply(urls[[1]], ops_get) #adding here. ops outputs a lits down to ops:publication-reference as results.
-#testing to here and ok, is list of lists needing melting
-results <- reshape2::melt(content)
-family_id <- dplyr::filter(results, L3 == "@family-id") %>%
-  dplyr::rename(family_id = value, id = L2, set = L1)  %>%
-  dplyr::select(family_id)
-document_id_type <- dplyr::filter(results, L4 == "@document-id-type") %>%
-  dplyr::rename(document_id_type = value, id = L2, set = L1) %>%
-  dplyr::select(document_id_type)
-country <- dplyr::filter(results, L4 == "country")  %>%
-  dplyr::rename(country = value, id = L2, set = L1)  %>%
-  dplyr::select(country)
-country$country <- as.character(country$country)
-doc_number <- dplyr::filter(results, L4 == "doc-number") %>%
-  dplyr::rename(doc_number = value, id = L2, set = L1)  %>%
-  dplyr::select(doc_number)
-kind <- dplyr::filter(results, L4 == "kind") %>%
-  dplyr::rename(kind = value, id = L2, set = L1)  %>%
-  dplyr::select(kind, id, set)
-df <- dplyr::bind_cols(family_id, document_id_type, country, doc_number, kind) %>%
-  tidyr::unite(., epodoc, c(country, doc_number), sep = "", remove = FALSE) %>% #problem here with country doc number
-  tidyr::unite(docdb, c(country, doc_number, kind), sep = ".", remove = FALSE) %>%
-  tidyr::unite(publication_number, c(epodoc, kind), sep = "", remove = FALSE)
-ops_country(data = df, col = "country")
-  } #that works just fine.
+    content <- lapply(urls[[1]], ops_get)
+    results <- reshape2::melt(content)
+    results <- parse_numbers_results_(results)
+    return(results) # works outside the function but not inside it!
+ # may need to add df here
+  }
+}
+# family_id <- dplyr::filter(results, L3 == "@family-id") %>%
+#       dplyr::rename(family_id = value, id = L2, set = L1) %>%
+#       dplyr::select(family_id)
+# document_id_type <- dplyr::filter(results, L4 == "@document-id-type") %>%
+#       dplyr::rename(document_id_type = value, id = L2, set = L1) %>%
+#       dplyr::select(document_id_type)
+# country <- dplyr::filter(results, L4 == "country") %>%
+#       dplyr::rename(country = value, id = L2, set = L1) %>%
+#       dplyr::select(country)
+# country$country <- as.character(country$country)
+# doc_number <- dplyr::filter(results, L4 == "doc-number") %>%
+#       dplyr::rename(doc_number = value, id = L2, set = L1) %>%
+#       dplyr::select(doc_number)
+# kind <- dplyr::filter(results, L4 == "kind") %>%
+#       dplyr::rename(kind = value, id = L2, set = L1) %>%
+#       dplyr::select(kind, id, set)
+# df <- dplyr::bind_cols(family_id, document_id_type, country, doc_number, kind) %>%
+#       tidyr::unite(., epodoc, c(country, doc_number), sep = "", remove = FALSE) %>%
+#       tidyr::unite(docdb, c(country, doc_number, kind), sep = ".", remove = FALSE) %>%
+#       tidyr::unite(publication_number, c(epodoc, kind), sep = "", remove = FALSE)
+#      # ops_country(data = df, col = "country")
+#      # return(df)
+# that worked just fine but has now stopped working fine.
 # cases where qtotal is over 2000
 # if(is.numeric(start) | is.numeric(end) & (qtotal < 2000)) {
 #   print("warning... over 2000 results, try narrowing the data range")
 #   }
-
-}
-  # number <- ceiling(qtotal/100)
-  # begin <- seq(1, qtotal, by = 100) #uses qtotal
-  # finish <- seq(100, qtotal+100, by=100) # add 100 to fix recycling on unequal length.
-  # chunk <- paste(begin, finish, sep = "-") # avoids using end with finish.
-  # query <- query # why is this here (probably because of the note above, sho). Just changed to my query
-  # range <- paste0("&Range=", chunk)
-  # urls <- paste0(published_url, query, RCurl::curlEscape(within), dates, range) # added within and dates. Seems to work
-  # urls <- split(urls, ceiling(seq_along(urls)/20)) #from SO answer by Harlan
-  # return(urls)
-#}
-  # as above but also take the dates and divide them into year chunks under 2000. To test that could just create my own here
-  # make sure that the dates go into the query as they are not present above.
-  #query goes into GET in the iterator with the note on dates
-#} #add iterator #add parse
+# number <- ceiling(qtotal/100)
+# begin <- seq(1, qtotal, by = 100) #uses qtotal
+# finish <- seq(100, qtotal+100, by=100) # add 100 to fix recycling on unequal length.
+# chunk <- paste(begin, finish, sep = "-") # avoids using end with finish.
+# query <- query # why is this here (probably because of the note above, sho). Just changed to my query
+# range <- paste0("&Range=", chunk)
+# urls <- paste0(published_url, query, RCurl::curlEscape(within), dates, range) # added within and dates. Seems to work
+# urls <- split(urls, ceiling(seq_along(urls)/20)) #from SO answer by Harlan
+# return(urls)
+# }
+# as above but also take the dates and divide them into year chunks under 2000. To test that could just create my own here
+# make sure that the dates go into the query as they are not present above.
+# query goes into GET in the iterator with the note on dates
+# } #add iterator #add parse

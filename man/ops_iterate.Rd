@@ -16,14 +16,14 @@ ops_iterate(data, service = "", type = NULL, timer = 20)
 \item{timer}{The delay before sending each request}
 }
 \value{
-a JSON response object for use in other functions
+a JSON response object for use in other functions such as ops_numbers or ops_biblio.
 }
 \description{
 Used internally to send calls to OPS
 }
 \examples{
 \dontrun{threepubs <- c("WO0000034", "WO0000035", "WO0005967")
-ft <- iterate(threepubs, service = "fulltext", type = "fulltext")
-ft <- iterate(threepubs, type = "claims")}
+ft <- ops_iterate(threepubs, service = "fulltext", type = "fulltext") # shows availability of texts
+ft <- ops_iterate(threepubs, service = "fulltext", type = "claims")}
 }
 

@@ -1,4 +1,4 @@
-#' @title Retrieve patent family data
+#' @title DRAFT Retrieve patent family data
 #'
 #' @param x patent numbers in docdb format xx.xxxxx.xx, (character)
 #' @param constitutents biblio, legal

@@ -47,10 +47,10 @@ ops_urls <- function(query="", type = "NULL", start = NULL, end = NULL) {
   # add in the url calculator and generator
   number <- ceiling(qtotal/100)
   #fails if do not specify type here, maybe needs an if statement for that case?
-  begin <- seq(1, qtotal, by = 100) #uses qtotal from ops_count function
+  begin <- seq(1, qtotal, by = 100) # uses qtotal from ops_count function
   finish <- seq(100, qtotal+100, by=100) # add 100 to fix recycling on unequal length.
   chunk <- paste(begin, finish, sep = "-") # avoid using end with finish.
-  query <- query # why is this here
+  #query <- query # why is this here? commented out and works
   range <- paste0("&Range=", chunk)
   urls <- paste0(baseurl, query, RCurl::curlEscape(within), dates, range) # position range at end.
 }
