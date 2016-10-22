@@ -280,7 +280,7 @@ complete
 At present the publication_country, the publication_number and publication_kind are separate fields. It makes sense to unite them so they can be use for lookups with other database services. 
 
 ```{r publicationnumber, eval=FALSE}
-library(dplyr)
+library(tidyr)
 complete <- unite(complete, publication_number_full, c(publication_country, publication_number, publication_kind), sep = "", remove = FALSE)
 ```
 

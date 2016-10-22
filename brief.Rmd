@@ -1,0 +1,129 @@
+---
+title: "brief"
+author: "Paul Oldham"
+date: "27 September 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Get started with RStudio
+
+RStudio works with projects. 
+
+In the top right of the windown you will see a blue sign with R. Click on that.
+
+1. New Project
+2. Give the Project a Name (you will need this later and it will be public)
+3. Select a location to save the project (such as desktop or my documents). Then OK. 
+4. Go to `Build` in the top menu
+5. Choose `Configure Build Tools` . Choose website. 
+
+Ok... we are good to go.
+
+## opsrdev session
+
+We need to load some libraries. You can find each one in `Packages` and tick them or you can write the following in the `Console`.
+
+```{r library, eval=FALSE}
+library(opsrdev) # the opsr package
+library(dplyr)
+library(readr) 
+```
+
+## Authenticate
+
+OPS will work for very limited searches without authenticating. 
+
+When you signed up you were asked to obtain a `key` and a `secret`. You can save them in R to use later by typing the following in the console.
+
+Note that the sign is `<-` and the key and secret must be inside quotes "".
+
+```{r}
+key <- "BiaLwkHwuus8WjXQPdvVajGGrLMkZnf9"
+secret <- "wkvTOQeuLwUGYxcw"
+```
+
+Next we can use this information to authenticate
+
+```{r}
+library(opsrdev)
+ops_auth(key, secret)
+```
+
+## What is the status of the service (it can be busy)
+
+```{r}
+library(opsrdev)
+ops_status()
+```
+
+## How many results are there
+
+We can only retrieve upto 2000 results at a time. 
+
+```{r}
+library(opsrdev)
+ops_count("drones")
+```
+
+Ok that's fine. If we had larger results we would want to break them down by year. Let's try pizza.
+
+```{r}
+library(opsrdev)
+ops_count("pizza")
+```
+
+```{r}
+library(opsrdev)
+ops_count("pizza", "ta", start = 1990, end = 2015)
+```
+
+Still too many. Let's try a narrower set. 
+
+```{r}
+library(opsrdev)
+ops_count("pizza", "ta", start = 2010, end = 2015)
+```
+
+So, by experimenting we can arrive at a date range under the 2000 results that we could then retrieve. 
+
+##APIs work with Urls
+
+APIs by definition work with URls. 
+
+The basic url for the EPO OPS service is 
+
+[http://ops.epo.org/3.1/rest-services](http://ops.epo.org/3.1/rest-services)
+
+We won't use this but just to show you how this works programatically. The ops_urls function will create the urls for you. 
+
+```{r}
+urls <- ops_urls(query = "pizza", type = "ti", start = 1990, end = 2000)
+urls
+```
+
+We want to fetch back some bibliographic data. We can use a function called `ops_fetch_biblio()`. As the name suggests it fetches bibliographic data. It uses a set of controls where type = "ta" is titles and abstracts, while type = "ti"
+
+```{r warning=FALSE}
+library(opsrdev)
+drones <- ops_fetch_biblio(query = "drones", type = "ta", service = "biblio", start = 1990, end = 2015, timer = 10)
+```
+
+Let's see that as a table in RStudio.
+
+```{r}
+View(drones)
+```
+
+We can also write this data to a .csv file. It will write the file to your project folder.
+
+```{r}
+write_csv(drones, "drones.csv") 
+```
+
+Don't forget quotes or .csv at the end. 
+
+Congratulations, you have now accessed data from an API using R and downloaded the results. 
